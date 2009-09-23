@@ -1,0 +1,11 @@
+Package: RGoogleData
+Type: Package
+Title: An R interface to Google Data (Docs, Calendar, Contacts, Finance, etc.)
+Version: 0.0.10
+Date: 2009-08-27
+Depends: rJava
+Author: Adrian A. Dragulescu
+Maintainer: Adrian A. Dragulescu <adrian.dragulescu@gmail.com>
+Description: Provide R access to Google Data API.
+License: GPL-3
+
