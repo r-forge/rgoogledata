@@ -24,7 +24,7 @@ moveFileToFolder(documentListEntry, folder)
 
 removeFileFromFolder(documentListEntry, folder)
 
-trashFile(documentListEntry)
+trashFile(documentListEntry, delete=FALSE)
 
 }
 \arguments{
@@ -35,6 +35,9 @@ trashFile(documentListEntry)
   \item{documentListEntry}{ An object of class \code{DocumentEntry},
     \code{SpreadsheetEntry}, \code{PresentationEntry}, or
     \code{FolderEntry} object.}
+  \item{delete}{ A logical value indicating if the document should be
+    permanently deleted.  If \code{FALSE}, the document is just moved
+    into the trash bin.}
 }
 
 \details{

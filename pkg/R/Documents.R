@@ -163,7 +163,7 @@ setMethod("show", "BaseEntry",
     cat("@title =", object@title, 
         "\n@authors =", object@authors,
         "\n@published =", as.character(object@published),
-        "\n@id =", object@id)
+        "\n@id =", object@id, "\n")
   })
 
 
@@ -259,7 +259,7 @@ newFolder <- function(con, title, folder)
 # need to have inFolderId.  If inFolderId="", move to home. 
 moveFileToFolder <- function(doc, folder)
 {
-  doc@con@ref$moveDocumentToFolder(doc@id, folder@key)
+  doc@con@ref$moveDocumentToFolder(doc@key, folder@key)
 
   invisible(as.logical(doc@con@ref$getMsg()))
 }
@@ -278,9 +278,9 @@ removeFileFromFolder <- function(doc, folder)
 ####################################################################
 # Send document to trash bin.  If document is in a folder, 
 # inFolderId needs to be specified. 
-trashFile <- function(doc)
+trashFile <- function(doc, delete=FALSE)
 {
-  doc@con@ref$trashDocument(doc@key)
+  doc@con@ref$trashDocument(doc@key, delete)
 
   invisible(as.logical(doc@con@ref$getMsg()))
 }

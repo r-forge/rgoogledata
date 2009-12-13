@@ -4,6 +4,7 @@
 
 test.UploadDownload <- function(deleteFiles=TRUE)
 {
+  require(RGoogleData)
   username <- "rdocsdemo@gmail.com"
   password <- "RGooglePass12"
   con <- googleConnect(username, password)
@@ -54,6 +55,17 @@ test.UploadDownload <- function(deleteFiles=TRUE)
   }
   print(checkEquals(TRUE, target))
 
+  
+  doc <- allXls[[which(sapply(allXls, slot, "title")=="myOnCall")]]  
+  cat("download 5th sheet of 'OnCall' to a csv format:\n")
+  filepath1 <- "C:/Temp/Downloads/myOnCall5.csv"
+  downloadDocument(doc, filepath1, fileformat="csv", sheetIndex=5)
+  if (file.exists(filepath1)){
+    target <- TRUE
+  }
+  print(checkEquals(TRUE, target))
+
+  
   cat("download 'iris' to a spreadsheet format:\n")
   filepath2 <- "C:/Temp/iris3.xls"
   downloadDocument(doc, filepath2, fileformat="4")

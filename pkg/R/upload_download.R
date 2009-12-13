@@ -1,4 +1,4 @@
-downloadDocument <- function(doc, filepath, fileformat)
+downloadDocument <- function(doc, filepath, fileformat, sheetIndex=NULL)
 {
   if (class(doc)=="list")
     stop("Input 'doc' should not be a list!")
@@ -14,15 +14,19 @@ downloadDocument <- function(doc, filepath, fileformat)
     if (!(fileformat %in% c("doc", "txt", "odt", "png", "pdf", "rtf", "html")))
       warning("Unrecognized format for document type.")    
   
-  if (docType == "spreadsheet")
-    if (!(fileformat %in% c("4", "13", "12", "5", "23", "102")))
-      warning("Unrecognized format for spreadsheet type.")    
-
+  if (docType == "spreadsheet"){
+    if (!(fileformat %in% c("xls", "ods", "pdf", "csv", "tsv", "html")))
+      warning("Unrecognized format for spreadsheet type.")
+    if (fileformat %in% c("csv", "tsv") & is.null(sheetIndex))
+      stop('Please provide a sheet index if you want "csv" or "tsv" output.')
+  }
+ 
   if (docType == "presentation")
     if (!(fileformat %in% c("pdf", "ppt", "swf")))
       warning("Unrecognized format for presentation type.")    
 
-  doc@con@ref$downloadDocument(doc@key, filepath, as.character(fileformat))
+  doc@con@ref$downloadDocument(doc@key, filepath, as.character(fileformat),
+    as.character(sheetIndex-1))
 
   invisible()
 }

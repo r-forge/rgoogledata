@@ -36,7 +36,9 @@ test.Spreadsheets <- function()
   # List Entries 
   
   cat("get the ListEntries from first sheet of 'testxls':\n", sep="")
-  wks <- allWks[[which(sapply(allWks, slot, "title") == "Sheet 1")]] 
+  xls <- allXls[[which(sapply(allXls, slot, "title") == "testxls")]]
+  allWks <- getWorksheets(xls)
+  wks <- allWks[[which(sapply(xls, slot, "title") == "Sheet 1")]] 
   listEntries <- getListEntries(wks)
   target <- (length(listEntries) > 0)
   print(checkEquals(TRUE, target))

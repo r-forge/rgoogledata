@@ -32,9 +32,12 @@ test.Documents <- function()
   cat("trash document 'test1234':\n", sep="")
   docs <- getDocuments(con)
   doc  <- docs[[which(sapply(docs, slot, "title") == "test1234")[1]]]
-  target <- trashFile(doc)
-  print(checkEquals(TRUE, target))
-
+  if (length(doc)==1){
+    target <- trashFile(doc)
+    print(checkEquals(TRUE, target))
+  } else {
+    print("FAILED.  Maybe document wasn't created?!")
+  } 
   
 }
 

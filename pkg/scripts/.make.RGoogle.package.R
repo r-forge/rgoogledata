@@ -3,7 +3,28 @@
 #
 #
 
+##################################################################
+#
+.setEnv <- function(computer=c("HOME", "LAPTOP", "WORK"))
+{
+  if (computer=="WORK"){
+    pkgdir  <<- "H:/user/R/Adrian/findataweb/temp/RGoogleData/"
+    outdir  <<- "H:/"
+    Rcmd    <<- "S:/All/Risk/Software/R/R-2.10.0/bin/Rcmd"
+    javadir <<- "C:/Documents and Settings/e47187/workspace/test_gdata/"
+  } else if (computer == "LAPTOP"){
+    pkgdir <<- "C:/Users/adrian/R/findataweb/temp/xlsx/"
+    outdir <<- "C:/"
+    Rcmd   <<- '"C:/Program Files/R/R-2.10.0/bin/Rcmd"'
+  } else if (computer == "HOME"){
+  } else {
+  }
 
+  invisible()
+}
+
+##################################################################
+#
 .update.DESCRIPTION <- function(packagedir, version)
 {
   file <- paste(packagedir, "DESCRIPTION", sep="") 
@@ -27,47 +48,52 @@
 }
 
 ##################################################################
+#
+.move.java.classes <- function(do=TRUE)
+{
+  if (do){
+    setwd(javadir)
+    
+    # create my jar and move it to the inst/java/ directory
+    setwd("bin")
+    system("jar -cvf RInterface.jar dev/*.class")
+    file.copy("RInterface.jar", paste(packagedir,
+      "inst/java/RInterface.jar", sep=""), overwrite=TRUE)
+    unlink("RInterface.jar")
+    setwd("..")
+
+    # move the source files to have for reference ... 
+    file.copy("src/dev/RInterface.java", paste(packagedir, 
+      "inst/java/RInterface.java", sep=""), overwrite=TRUE)
+    file.copy("src/testRInterface.java", paste(packagedir, 
+      "inst/java/testRInterface.java", sep=""), overwrite=TRUE)
+    file.copy("src/testRInterface.java", paste(packagedir, 
+      "inst/java/DocumentListException.java", sep=""), overwrite=TRUE)
+  }
+  invisible()
+}
+
+##################################################################
 ##################################################################
 
 version <- NULL      # keep increasing the minor
 #version <- "0.0.1"  # if you want to set it by hand
 
-# the java classes are here
-javadir <- "C:/Documents and Settings/e47187/workspace/test_gdata/"
-# R package is here
-packagedir <- "H:/user/R/Adrian/findataweb/temp/RGoogleData/"
-Rcmd <- '"C:/Program Files/R/R-2.9.2/bin/Rcmd"'
-#Rcmd <- "S:/All/Risk/Software/R/R-2.8.1/bin/Rcmd"
+.setEnv("WORK")
+
+.move.java.classes(TRUE)  # move java classes
 
 setwd(javadir)
 
-# create my jar and move it to the inst/java/ directory
-setwd("bin")
-system("jar -cvf RInterface.jar dev/*.class")
-file.copy("RInterface.jar", paste(packagedir,
-  "inst/java/RInterface.jar", sep=""), overwrite=TRUE)
-unlink("RInterface.jar")
-setwd("..")
-
-# move the source files to have for reference ... 
-file.copy("src/dev/RInterface.java", paste(packagedir, 
-  "inst/java/RInterface.java", sep=""), overwrite=TRUE)
-file.copy("src/testRInterface.java", paste(packagedir, 
-  "inst/java/testRInterface.java", sep=""), overwrite=TRUE)
-file.copy("src/testRInterface.java", paste(packagedir, 
-  "inst/java/DocumentListException.java", sep=""), overwrite=TRUE)
-
 # change the version
-newVersion <- .update.DESCRIPTION(packagedir, version)
+newVersion <- .update.DESCRIPTION(pkgdir, version)
 
 # make the package
-setwd(packagedir)
-cmd <- paste(Rcmd, "build --force --binary --no-vignette", packagedir)
+setwd(outdir)
+cmd <- paste(Rcmd, "build --force --binary --no-vignette", pkgdir)
 print(cmd)
-system(cmd)  
 
-#packname <- paste("H:/RGoogleData_", newVersion, ".zip", sep="")
-#install.packages(packname, repos=NULL)
+system(cmd)  
 install.packages(paste("RGoogleData_",newVersion,".zip", sep=""), repos=NULL)
 
 

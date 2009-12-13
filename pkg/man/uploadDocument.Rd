@@ -11,7 +11,7 @@ Upload documents to Google Docs.  Download Google Docs to local
 \usage{
 uploadDocument(con, filepath, title, folder)
 
-downloadDocument(doc, filepath, format)
+downloadDocument(doc, filepath, fileformat, sheetIndex)
 
 }
 \arguments{
@@ -20,20 +20,22 @@ downloadDocument(doc, filepath, format)
   \item{title}{ How do you want to name your document in Google Docs.}
   \item{folder}{ A 'FolderEntry' object.  If empty, the document will be
     uploaded in the home directory.}
-  \item{format}{ A character string representing a valid Google format.  See
+  \item{fileformat}{ A character string representing a valid Google format.  See
     the Details section. }
   \item{doc}{An object of class 'DocumentEntry', 'SpreadsheetEntry', or
-    'PresentationEntry'. }
+    'PresentationEntry'.}
+  \item{sheetIndex}{A numeric value indicating the sheet you want to
+    download.  Works only for spreadsheets with fileformat "csv" and
+    "tsv".  For all other file formats this argument is ignored.}
 }
 \details{
   
-  The following formats are supported:
+  The following file formats are supported:
   \describe{
     \item{documents:}{"doc", "docx", "txt", "odt", "png", "pdf",
       "rtf", "html"}
-     \item{spreadsheets:}{"4" for xls, "??" for xlsx, "13" for ods,
-       "12" for pdf, "5" for csv, "23" for tsv, "102" for html.}
-     \item{presentations:}{"pdf", "ppt", "swf"}
+    \item{spreadsheets:}{"xls", "ods", "pdf", "csv", "tsv", "html"}
+    \item{presentations:}{"pdf", "ppt", "swf"}
   }
   Internally, all documents are stored as html.  When downloading a
   document to a different format, Google performs a conversion which
@@ -41,13 +43,7 @@ downloadDocument(doc, filepath, format)
   downloading, the resulting document will not be identical to the
   original document.
 
-  If you try to download a spreadsheet with multiple worksheets into a
-  'csv' or 'tsv' format, only the first worksheet will be downloaded.
 }
-\value{
-  None.
-}
-
 \note{
   
 IMPORTANT: The upload function does not currently work.  The error
