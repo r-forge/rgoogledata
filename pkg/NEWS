@@ -1,0 +1,28 @@
+NEWS/Change log file
+
+Version 0.2.0 (2009-12-14)
+ 
+ o  Upgraded to Google gdata version 1.40.  This had a
+ gdata-docs-3.0.jar, up from gdata-docs-2.0.jar.  I had to change a
+ bunch of minor things.  See below.
+
+ o  Added argument 'sheetIndex' to 'downloadDocument' so you can
+ download a specific sheet.  Works only for csv and tsv format (at the
+ request of Farrel Buchinski).   
+
+ o  Had to change some http calls on the java side.  Noticed that the
+ document Id is now different than the spreadsheet Id that you get if
+ you use the spreadsheets API.  This forced me to introduce another
+ slot into the SpreadsheetEntry object called spreadsheetId.  I'm
+ using this Id when I add/delete worksheets.
+ 
+ o  When working with worksheets, I now construct directly the
+ worksheetFeedUrl.  This should be marginally faster. 
+
+ o  Improved the unit tests.  
+
+
+Version 0.0.10 (2009-08-27)
+
+ o First release on R-Forge
+ o Importing files does not work. 
