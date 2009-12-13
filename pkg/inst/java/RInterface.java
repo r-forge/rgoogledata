@@ -14,15 +14,18 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.gdata.client.*;
+import com.google.gdata.client.GoogleAuthTokenFactory.UserToken;
 import com.google.gdata.client.docs.*;
 import com.google.gdata.client.spreadsheet.SpreadsheetService;
 import com.google.gdata.data.BaseEntry;
 import com.google.gdata.data.DateTime;
+import com.google.gdata.data.MediaContent;
 import com.google.gdata.data.PlainTextConstruct;
 import com.google.gdata.data.docs.*;
 import com.google.gdata.util.*;
 import com.google.gdata.data.extensions.*;
 import com.google.gdata.data.media.MediaEntry;
+import com.google.gdata.data.media.MediaSource;
 import com.google.gdata.data.spreadsheet.Column;
 import com.google.gdata.data.spreadsheet.Data;
 import com.google.gdata.data.spreadsheet.Header;
@@ -56,8 +59,14 @@ public class RInterface {
   public static final String SPREADSHEETS_SERVICE_NAME = "wise";
   public static final String SPREADSHEETS_HOST = "spreadsheets.google.com";
 
-  private static final String URL_FEED = "/feeds";
-  private static final String URL_DOWNLOAD = "/download";
+  private final String URL_FEED = "/feeds";
+  private final String URL_DOWNLOAD = "/download";
+  private final String URL_DOCLIST_FEED = "/private/full";
+
+  private final String URL_DEFAULT = "/default";
+  private final String URL_FOLDERS = "/contents";
+  private final String URL_ACL = "/acl";
+  private final String URL_REVISIONS = "/revisions";
 
   private static final String URL_GROUP_DOCUMENTS = "/documents";
   private static final String URL_GROUP_SPREADSHEETS = "/spreadsheets";
@@ -118,12 +127,12 @@ public class RInterface {
   private static final Map<String, String> DOWNLOAD_SPREADSHEET_FORMATS;
   static {
     DOWNLOAD_SPREADSHEET_FORMATS = new HashMap<String, String>();
-    DOWNLOAD_SPREADSHEET_FORMATS.put("xls", "4");
-    DOWNLOAD_SPREADSHEET_FORMATS.put("ods", "13");
-    DOWNLOAD_SPREADSHEET_FORMATS.put("pdf", "12");
-    DOWNLOAD_SPREADSHEET_FORMATS.put("csv", "5");
-    DOWNLOAD_SPREADSHEET_FORMATS.put("tsv", "23");
-    DOWNLOAD_SPREADSHEET_FORMATS.put("html", "102");
+    DOWNLOAD_SPREADSHEET_FORMATS.put("xls", "xls");
+    DOWNLOAD_SPREADSHEET_FORMATS.put("ods", "ods");
+    DOWNLOAD_SPREADSHEET_FORMATS.put("pdf", "pdf");
+    DOWNLOAD_SPREADSHEET_FORMATS.put("csv", "csv");
+    DOWNLOAD_SPREADSHEET_FORMATS.put("tsv", "tsv");
+    DOWNLOAD_SPREADSHEET_FORMATS.put("html", "html");
   }
  
 	/********************************************************************
@@ -136,8 +145,8 @@ public class RInterface {
 	 Msg = "";	
 	 try{
 	   service = new DocsService(applicationName);   
- 	   spreadsheetsService = new SpreadsheetService(applicationName);  
- 	   //spreadsheetsService = new GoogleService(SPREADSHEETS_SERVICE_NAME, applicationName);
+ 	   //spreadsheetsService = new SpreadsheetService(applicationName);  
+ 	   spreadsheetsService = new GoogleService(SPREADSHEETS_SERVICE_NAME, applicationName);
 	 } catch (Exception ex){
 	   Msg = "Exception: " + ex.getMessage() + "\n";  
 	 }	 
@@ -188,7 +197,8 @@ public class RInterface {
 		out.append("\t"+ DOCUMENT_LIST_ENTRY_DETAILS + "\n");
 		Msg = "";
 		
-		String url = "http://docs.google.com/feeds/documents/private/full";
+		//String url = "http://docs.google.com/feeds/default/private/full/";
+		String url = "http://docs.google.com" + URL_FEED + URL_DEFAULT + URL_DOCLIST_FEED;
 		if (type.equals("document")){
 			url = url + "/-/document";
 		} else if (type.equals("spreadsheet")){
@@ -393,12 +403,12 @@ public class RInterface {
 	public void newDocument(String name, String type, String inFolderId){
 
 		Msg = "";
-		String uri = "http://docs.google.com/feeds/"; 
+		String uri = "http://docs.google.com" + URL_FEED; 
 		
 		if (!inFolderId.equals("")){
 			uri = uri + "folders/private/full/" + inFolderId;
 		} else {
-			uri = uri + "documents/private/full";
+			uri = uri + URL_DEFAULT + URL_DOCLIST_FEED;  //"default/private/full";
 		}
 
 	  DocumentListEntry newEntry = null;
@@ -507,8 +517,6 @@ public class RInterface {
     
 	}
 	
-	
-	
 	public void deleteWorksheet(String worksheetId) {
 		
 		try{
@@ -521,18 +529,22 @@ public class RInterface {
 		}
   }
 	
+	/*
+	 * folderId = "folder%3A0Bx8m8jO_88FPN2Y0MmUzYmQtYTY1Zi00ODZjLTkzN2QtYTM5YTJjMDc1NDU4"         
+	 */
 	public void moveDocumentToFolder(String docId, String toFolderId){
  	
-    try{
-  		URL urlTo =  buildUrl(URL_GROUP_FOLDERS + URL_PATH + "/" + toFolderId);
-
-  		DocumentListEntry doc = new DocumentListEntry();
-      doc.setId(buildUrl(URL_GROUP_DOCUMENTS + URL_PATH + "/" + docId).toString());
-      service.insert(urlTo, doc);
-      Msg = "TRUE";
-		} catch (Exception ex) {
-			Msg = "Exception: " + ex.getMessage() + "\n";
-		}		
+      try{
+     	DocumentListEntry doc = new DocumentListEntry();
+        doc.setId(buildUrl(URL_DEFAULT + URL_DOCLIST_FEED + "/" + docId).toString());
+ 
+        //URL urlTo =  buildUrl(URL_GROUP_FOLDERS + URL_PATH + "/" + toFolderId);  -- v1.36
+        URL urlTo =  buildUrl(URL_DEFAULT + URL_DOCLIST_FEED + "/" + toFolderId + URL_FOLDERS);
+        service.insert(urlTo, doc);
+        Msg = "TRUE";
+	  } catch (Exception ex) {
+		Msg = "Exception: " + ex.getMessage() + "\n";
+	  }		
 	}
 	
 	/**
@@ -585,19 +597,22 @@ public class RInterface {
   	Msg = "";
     
     try{
-  		URL url =  buildUrl(URL_GROUP_FOLDERS + URL_PATH + "/" + inFolderId + "/" + docId); 
-      service.delete(url, getObjectEtag(docId));   // move from folder to home   
+      URL url =  buildUrl(URL_DEFAULT + URL_DOCLIST_FEED + "/" + inFolderId + URL_FOLDERS + "/" + docId); 
+      service.delete(url, getDocsListEntry(docId).getEtag());   // move from folder to home   
       Msg = "TRUE";	
 		} catch (Exception ex) {
 			Msg = "Exception: " + ex.getMessage() + "\n";
 		}
 	}
 	
-	public void trashDocument(String docId){
+	public void trashDocument(String docId, boolean delete){
     
     try{  		
-		  URL url = buildUrl(URL_GROUP_DOCUMENTS + URL_PATH + "/" + docId);
-		  service.delete(url, getObjectEtag(docId));     // delete from home
+		  String feedUrl = URL_DEFAULT + URL_DOCLIST_FEED + "/" + docId;
+		  if (delete) {
+		      feedUrl += "?delete=true";
+		    }
+		  service.delete(buildUrl(feedUrl), getDocsListEntry(docId).getEtag());     // delete from home
 		  Msg = "TRUE";
 		
 		} catch (Exception ex) {
@@ -606,63 +621,41 @@ public class RInterface {
 	
 	}
 	
-	public void downloadDocument(String docId, String filepath, String format) 
+	public void downloadDocument(String docId, String filepath, String format, String sheetIndex) 
 	  throws DocumentListException, IOException, ServiceException {
 		
-    URL url;
-    GoogleService service;
-    
-    String id = getObjectIdSuffix(docId);
-    String docType = getObjectIdPrefix(docId);
-    
-    if (docType.equals("spreadsheet")) {
-      service = spreadsheetsService;
+      URL url;
       
-      HashMap<String, String> parameters = new HashMap<String, String>();
-      parameters.put("key", id);
-      parameters.put("fmcmd", format);
-      if (format.equals(DOWNLOAD_SPREADSHEET_FORMATS.get("csv")) ||
+      // if docId="spreadsheet%3AttXrIUcU402o2GV2jsGsF0g" 
+      String id = getObjectIdSuffix(docId);        // id="ttXrIUcU402o2GV2jsGsF0g"
+      String docType = getObjectIdPrefix(docId);   // docType="spreadsheet" 
+    
+      if (docType.equals("spreadsheet")) {
+        //UserToken docsToken = (UserToken) service.getAuthTokenFactory().getAuthToken();
+        UserToken spreadsheetsToken = (UserToken) spreadsheetsService
+          .getAuthTokenFactory().getAuthToken();
+        service.setUserToken(spreadsheetsToken.getValue());
+        
+        HashMap<String, String> parameters = new HashMap<String, String>();
+        parameters.put("key", id);
+        parameters.put("exportFormat", format);
+        if (format.equals(DOWNLOAD_SPREADSHEET_FORMATS.get("csv")) ||
           format.equals(DOWNLOAD_SPREADSHEET_FORMATS.get("tsv"))) {
-        parameters.put("gid", "0");  // download only the first sheet
+          parameters.put("gid", sheetIndex);  // download only the sheet specified
+        }
+
+        url = buildUrl(SPREADSHEETS_HOST, URL_DOWNLOAD + "/" + docType + "s" + 
+                       URL_CATEGORY_EXPORT, parameters);
+
+      } else {
+        
+        String[] parameters = {"docID=" + id, "exportFormat=" + format};
+        url = buildUrl(URL_DOWNLOAD + "/" + docType + "s" +
+                       URL_CATEGORY_EXPORT, parameters);
       }
 
-      //String[] parameters = {"key=" + id, "fmcmd=" + format};
-      url = buildUrl(SPREADSHEETS_HOST, URL_DOWNLOAD + "/" + docType + "s" +
-                     URL_CATEGORY_EXPORT, parameters);
-
-    } else {
-      service = this.service;
+      downloadFile(url, filepath); 		
       
-      String[] parameters = {"docID=" + id, "exportFormat=" + format};
-      url = buildUrl(URL_DOWNLOAD + "/" + docType + "s" +
-                     URL_CATEGORY_EXPORT, parameters);
-    }
-
-    InputStream inStream = null;
-    FileOutputStream outStream = null;
-
-    try {
-      Link link = new Link();
-      link.setHref(url.toString());
-
-      inStream = service.getStreamFromLink(link);
-      outStream = new FileOutputStream(filepath);
-
-      int c;
-      while ((c = inStream.read()) != -1) {
-        outStream.write(c);
-      }
-    } finally {
-      if (inStream != null) {
-        inStream.close();
-      }
-
-      if (outStream != null) {
-        outStream.flush();
-        outStream.close();
-      }
-    }
-		
 	}
 	
 	public void uploadDocument(String filepath, String name, String inFolderId){
@@ -801,7 +794,7 @@ public class RInterface {
       throw new DocumentListException();
     }
 
-    URL url = buildUrl(URL_GROUP_DOCUMENTS + URL_PATH + "/" + objectId);
+    URL url = buildUrl(URL_DEFAULT + URL_DOCLIST_FEED + "/" + objectId);
 
     return service.getEntry(url, DocumentListEntry.class);
   }
@@ -1061,6 +1054,50 @@ public class RInterface {
       String value = pairs[2*i+1]; // such as "Fred"
 
       entryToChange.getCustomElements().setValueLocal(tag, value);
+    }
+  }
+
+  
+  /**
+   * Downloads a file.
+   *
+   * @param exportUrl the full url of the export link to download the file from.
+   * @param filepath path and name of the object to be saved as.
+   *
+   * @throws IOException
+   * @throws MalformedURLException
+   * @throws ServiceException
+   * @throws DocumentListException
+   */
+  public void downloadFile(URL exportUrl, String filepath) throws IOException,
+      MalformedURLException, ServiceException, DocumentListException {
+    if (exportUrl == null || filepath == null) {
+      throw new DocumentListException("null passed in for required parameters");
+    }
+
+    MediaContent mc = new MediaContent();
+    mc.setUri(exportUrl.toString());
+    MediaSource ms = service.getMedia(mc);
+
+    InputStream inStream = null;
+    FileOutputStream outStream = null;
+
+    try {
+      inStream = ms.getInputStream();
+      outStream = new FileOutputStream(filepath);
+
+      int c;
+      while ((c = inStream.read()) != -1) {
+        outStream.write(c);
+      }
+    } finally {
+      if (inStream != null) {
+        inStream.close();
+      }
+      if (outStream != null) {
+        outStream.flush();
+        outStream.close();
+      }
     }
   }
 

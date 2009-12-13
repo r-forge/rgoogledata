@@ -5,25 +5,33 @@ import dev.RInterface;
 public class testRInterface {
 	
 	public static void main(String[] args){ 
-		
+	
+	  // Inspired by java/sample/docs/DocumentList.java
 	  RInterface R = new RInterface("R Docs Interface");
 	  R.login("rdocsdemo@gmail.com", "RGooglePass12");
 				
-	  //String aux = R.getDocumentListEntries("folder"); // or "folder", "document", "presentation", "spreadsheet"
+	  String aux = R.getDocumentListEntries("documents"); // or "folder", "document", "presentation", "spreadsheet"
 	  //String aux = R.fullTextQuery("virginica");
-	  //System.out.println(aux);
+	  System.out.println(aux);
   
-	  //R.newDocument("test", "document");
+	  //String docId = "document%3A0AR8m8jO_88FPZGZ0NWg5dzlfMjZ3aHd0MnhjcA"; 
+	  //String folderId = "folder%3A0Bx8m8jO_88FPN2Y0MmUzYmQtYTY1Zi00ODZjLTkzN2QtYTM5YTJjMDc1NDU4";  // R folder
+	  
+	  //R.newDocument("test1234", "document", "");
 	  //R.newDocument("dir1", "folder", "");
 	  //R.newDocument("dir2", "folder", "folder%3A7f42e3bd-a65f-486c-937d-a39a2c075458");
-	  //R.removeDocumentFromFolder("document%3Adft5h9w9_1dtc28pg3", "folder%3A7f42e3bd-a65f-486c-937d-a39a2c075458");
-	  //R.trashDocument("document%3Adft5h9w9_0cq2vtgdf");
+	  //R.moveDocumentToFolder(docId, folderId);        // works
+      //R.removeDocumentFromFolder(docId, folderId);      // works 
+	  //R.trashDocument(docId, false);
+	   
 	  
 	  
-	  
-	  R.uploadDocument("C:/Temp/RLicense.txt", "RLicense", "");
+	  //R.uploadDocument("C:/Temp/RLicense.txt", "RLicense", "");
 	  try{
-	    //R.downloadDocument("spreadsheet%3Ate-a0B-G6X1dfZ0tD5AH9vA", "C:/Temp/Downloads/iris.xls", "4");
+	    //R.downloadDocument("spreadsheet%3Ate-a0B-G6X1dfZ0tD5AH9vA", "C:/Temp/Downloads/iris.xls", "xls", "0");
+	    //R.downloadDocument("spreadsheet%3AttXrIUcU402o2GV2jsGsF0g", "C:/Temp/Downloads/testxls.xls", "xls", "0");
+        //R.downloadDocument("spreadsheet%3ApIeN6g2qaEvd6a8sgJXSfHA", "C:/Temp/Downloads/oncall.xls", "xls", "0");
+        //R.downloadDocument("spreadsheet%3A0Ah8m8jO_88FPdFp6bHhEd1N2dVJnWlU5OGtuZ1NLN3c", "C:/Temp/Downloads/oncall5.csv", "csv", "5");
 	  	//String bux = R.getWorksheetEntries("http://spreadsheets.google.com/feeds/spreadsheets/ttXrIUcU402o2GV2jsGsF0g");
 	  	//R.addWorksheet("mySheet", 100, 5, "http://spreadsheets.google.com/feeds/spreadsheets/ttXrIUcU402o2GV2jsGsF0g");
 	  	//R.deleteWorksheet("http://spreadsheets.google.com/feeds/worksheets/ttXrIUcU402o2GV2jsGsF0g/private/full/od4");	  	
