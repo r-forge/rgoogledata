@@ -54,25 +54,26 @@ trashFile(documentListEntry, delete=FALSE)
   
   \code{trashFile} moves the file into the Trash folder in your Google account.
   
-  For simplicity, in the last three function names I prefered the use of 
-  'file' instead of the more precise 'DocumentListEntry'.
-  
 }
 \value{
-  All functions return a logical, true for success and NA for failure.
-  In case of failure, you can inspect the reason by using
-  \code{\link{getMsg}} function.  
+  All functions return a logical, \code{TRUE} for success and \code{NA}
+  for failure.
 }
 \author{ Adrian Dragulescu }
-\seealso{\code{\link{getDocuments}}, and for retreiving error messages
-  \code{\link{getMsg}}.  To upload/download files see
+\seealso{\code{\link{getDocuments}}.  To upload/download files see
   \code{\link{uploadDocument}.}
 }
 \examples{
 
 # create an empty document on your Google account
-newDocument(con, title="test")
+newDocument(con, title="test1234")
 
+# list all documents
+docs <- getDocuments(con)
+doc  <- docs[[which(sapply(docs, slot, "title") == "test1234")[1]]]
+
+# trash the document you just created
+target <- trashFile(doc)
 
 
 }

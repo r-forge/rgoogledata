@@ -4,6 +4,7 @@
 
 test.Documents <- function()
 {
+  require(RUnit); require(RGoogleData)
   username <- "rdocsdemo@gmail.com"
   password <- "RGooglePass12"
   con <- googleConnect(username, password)
@@ -23,9 +24,11 @@ test.Documents <- function()
   target <- newDocument(con, title="test1234")
   print(checkEquals(TRUE, target))
 
+  cat("Sleep 5 secs...\n")  # if I don't sleep I may not find the doc!!
+  Sys.sleep(5)
   cat("move the document into folder ", folders[[1]]@title, ":\n", sep="")
   docs <- getDocuments(con)
-  doc  <- docs[[which(sapply(docs, slot, "title") == "test1234")]]
+  doc  <- docs[[which(sapply(docs, slot, "title") == "test1234")[1]]]
   target <- moveFileToFolder(doc, folders[[1]])
   print(checkEquals(TRUE, target))
 

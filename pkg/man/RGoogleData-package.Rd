@@ -39,15 +39,15 @@ location of your JVM (e.g. C:/Program Files/Java/jre6/bin/client).
 Only issues that relate directly to the R code should be reported as
 bugs.  Patches with bug fixes and improvements are welcome.  For
 reference the curent version of the package uses Google Java library
-1.40 \url{http://code.google.com/p/gdata-java-client/}.
+1.40 \url{http://code.google.com/p/gdata-java-client/}. 
 
 }
 \details{
 \tabular{ll}{
 Package: \tab RGoogleData\cr
 Type: \tab Package\cr
-Version: \tab 0.2.0\cr
-Date: \tab 2009-12-12\cr
+Version: \tab 0.2.1\cr
+Date: \tab 2009-12-31\cr
 License: \tab GPL-3\cr
 }
 

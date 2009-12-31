@@ -19,8 +19,8 @@ deleteListEntry(listEntries)
 
 }
 \arguments{
-  \item{wks}{ A 'WorksheetEntry' object.}  
-  \item{listEntries}{ A list of 'ListEntry' objects.}
+  \item{wks}{ A \code{WorksheetEntry} object.}  
+  \item{listEntries}{ A list of \code{ListEntry} objects.}
   \item{contentList}{ A list of lists.  An element of the inside list
     contains the data to be uploaded with names that match the 'tags'
     (column names of the worksheet).  As all the data is passed as
@@ -29,29 +29,29 @@ deleteListEntry(listEntries)
 }
 
 \details{
-  'ListEntry' objects correspond to one row of a worksheet.  See the
+  \code{ListEntry} objects correspond to one row of a worksheet.  See the
   class documentation \code{\linkS4class{ListEntry} for more details.}
   
-  'addListEntry' adds the contentList to the worksheet.
+  \code{addListEntry} adds the contentList to the worksheet.
   
-  'updateListEntries' modifies only the 'tags' that are specified in the
+  \code{updateListEntries} modifies only the 'tags' that are specified in the
   contentList.  The other 'tags' are left unmodified.  This allows for
   modification of only parts of the spreadsheet. 
   
-  'deleteListEntries' permanently removes the corresponding
-  'ListEntries' from your account.  I am not aware of ways to reverse
+  \code{deleteListEntries} permanently removes the corresponding
+  \code{ListEntries} from your account.  I am not aware of ways to reverse
   this action, so be careful. 
   
 }
 \value{
-  'getListEntries' returns a list of 'ListEntry' objects, each element
-  of the list pointing to one row of the worksheet.  To extract the
-  content of a 'ListEntry' object you need to call it's
+  \code{getListEntries} returns a list of \code{ListEntry} objects, each
+  element of the list pointing to one row of the worksheet.  To extract the
+  content of a \code{ListEntry} object you need to call it's
   \code{getContent} method.
   
-  'addListEntry', 'updateListEntries', and 'deleteListEntries' return a
-  logical, true for success and NA for failure.  In case of failure, you
-  can inspect the reason by using \code{\link{getMsg}} function.
+  \code{addListEntry}, \code{updateListEntries}, and
+  \code{deleteListEntries} return a logical, true for success and NA for
+  failure.
 }
 \author{Adrian Dragulescu}
 \seealso{\code{\linkS4class{ListEntry}} for the 'ListEntry'

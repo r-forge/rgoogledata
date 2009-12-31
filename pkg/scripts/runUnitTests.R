@@ -1,12 +1,43 @@
 
-## setwd("C:/Documents and Settings/e47187/workspace/test_gdata")
-## install.packages("RGoogleData_0.0.1.zip", repos=NULL)
-## Sys.setenv(tz="")
+# Run some simple automated tests for the package
+#
+#
 
-require(RGoogleData)
-username <- "rdocsdemo@gmail.com"
-password <- "RGooglePass12"
-con <- googleConnect(username, password)
+
+require(RUnit); require(RGoogleData)
+
+dirUT <- paste(.Library, "/RGoogleData/unitTests", sep="")
+source(paste(dirUT, "/test.Documents.R", sep=""))
+test.Documents()
+
+
+source(paste(dirUT, "/test.Spreadsheets.R", sep=""))
+test.Spreadsheets()
+
+source(paste(dirUT, "/test.UploadDownload.R", sep=""))
+test.UploadDownload(deleteFiles=FALSE)
+
+
+
+
+
+
+## testSuite <- defineTestSuite("RGoogleData",
+##   dirs=dirUT,
+##   testFileRegexp="\\.R$",
+##   testFuncRegexp="^test.+",
+##   rngKind = "Marsaglia-Multicarry",
+##   rngNormalKind = "Kinderman-Ramage"                                     
+## )
+
+## results <- runTestSuite(testSuite)
+## printTextProtocol(results)
+
+
+
+
+
+
 
 
 
@@ -32,49 +63,46 @@ con <- googleConnect(username, password)
 allXls <- getSpreadsheets(con)
 do.call("rbind", lapply(allXls, as, "data.frame"))
 
-# get the worksheets
-xls <- allXls[[1]]
-wks <- getWorksheets(xls)[[1]]  # get the first sheet
-as(wks, "data.frame")
+## # get the worksheets
+## xls <- allXls[[1]]
+## wks <- getWorksheets(xls)[[1]]  # get the first sheet
+## as(wks, "data.frame")
 
-# get the ListEntries of a WorksheetEntry
-listEntries <- getListEntries(wks)
-listEntry <- listEntries[[1]]
-as(listEntry, "data.frame")
-do.call("rbind", lapply(listEntries, as, "data.frame"))
+## # get the ListEntries of a WorksheetEntry
+## listEntries <- getListEntries(wks)
+## listEntry <- listEntries[[1]]
+## as(listEntry, "data.frame")
+## do.call("rbind", lapply(listEntries, as, "data.frame"))
 
-# get the contents of a listEntry
-getContent(listEntry)
-getContent(listEntries)
+## # get the contents of a listEntry
+## getContent(listEntry)
+## getContent(listEntries)
 
-# add ListEntries
-aux <- data.frame(year=2001:2010, value=1:10, transaction.point=letters[1:10])
-contentList <- apply(aux, 1, as.list)
-addListEntry(wks, contentList)
+## # add ListEntries
+## aux <- data.frame(year=2001:2010, value=1:10, transaction.point=letters[1:10])
+## contentList <- apply(aux, 1, as.list)
+## addListEntry(wks, contentList)
 
-# modify existing ListEntries
-theseListEntries <- listEntries[1:3]
-contentList <- list(list(year=2051, month=1), list(year=2052), list(year=2053))
-updateListEntry(theseListEntries, contentList)
+## # modify existing ListEntries
+## theseListEntries <- listEntries[1:3]
+## contentList <- list(list(year=2051, month=1), list(year=2052), list(year=2053))
+## updateListEntry(theseListEntries, contentList)
 
-# delete ListEntries
-theseListEntries <- listEntries[1:3]
-deleteListEntry(theseListEntries)
-
-
-
-# add a new worksheet
-addWorksheet(xls, title="mySheet", nrow=100, ncol=5)
-
-# delete a worksheet
-wks <- getWorksheets(xls)
-wks <- wks[sapply(wks, function(x){x@title=="mySheet"})]
-deleteWorksheet(wks)
+## # delete ListEntries
+## theseListEntries <- listEntries[1:3]
+## deleteListEntry(theseListEntries)
 
 
 
+## # add a new worksheet
+## addWorksheet(xls, title="mySheet", nrow=100, ncol=5)
 
-setContent()
+## # delete a worksheet
+## wks <- getWorksheets(xls)
+## wks <- wks[sapply(wks, function(x){x@title=="mySheet"})]
+## deleteWorksheet(wks)
+
+
 
 
 
@@ -82,20 +110,20 @@ slots <- slotNames(wks[[1]])
 cat(paste("      ", slots, " = from@", slots, sep="", collapse=",\n"))
 
 
-######################################################################
-# FILE/FOLDER MANIPULATIONS
-# create an empty GoogleDocument in your Google account
-newDocument(con, title="another test", folder=folders[[1]])
+## ######################################################################
+## # FILE/FOLDER MANIPULATIONS
+## # create an empty GoogleDocument in your Google account
+## newDocument(con, title="another test", folder=folders[[1]])
 
-newDocument(con, title="another test")
+## newDocument(con, title="another test")
 
-newFolder(con, title="Folder2")
+## newFolder(con, title="Folder2")
 
-docs <- getDocuments(con)
-doc <- docs[sapply(docs, function(doc){doc@title=="another test"})][[1]]
-removeFromFolder(con, doc, folder=folders[[1]])
+## docs <- getDocuments(con)
+## doc <- docs[sapply(docs, function(doc){doc@title=="another test"})][[1]]
+## removeFromFolder(con, doc, folder=folders[[1]])
 
-trashDocument(con, doc)
+## trashDocument(con, doc)
 
 
 

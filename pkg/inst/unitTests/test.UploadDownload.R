@@ -4,13 +4,13 @@
 
 test.UploadDownload <- function(deleteFiles=TRUE)
 {
-  require(RGoogleData)
+  require(RGoogleData); require(RUnit)
   username <- "rdocsdemo@gmail.com"
   password <- "RGooglePass12"
   con <- googleConnect(username, password)
 
   ##################################################################
-  # upload
+  # upload  DOES NOT WORK WELL
 
   # a text file
   cat("upload R license text file to a document 'RLicense':")
@@ -48,51 +48,53 @@ test.UploadDownload <- function(deleteFiles=TRUE)
   doc <- allXls[[which(sapply(allXls, slot, "title")=="iris")]]
   
   cat("download 'iris' to a csv format:\n")
-  filepath1 <- "C:/Temp/iris3.csv"
-  downloadDocument(doc, filepath1, fileformat="5")
+  filepath1 <- "C:/Temp/iris.csv"
+  downloadDocument(doc, filepath1, fileformat="csv", sheetIndex=1)
   if (file.exists(filepath1)){
     target <- TRUE
   }
   print(checkEquals(TRUE, target))
 
-  
+  cat("download 5th sheet of 'myOnCall' to a csv format:\n")
   doc <- allXls[[which(sapply(allXls, slot, "title")=="myOnCall")]]  
-  cat("download 5th sheet of 'OnCall' to a csv format:\n")
-  filepath1 <- "C:/Temp/Downloads/myOnCall5.csv"
+  filepath1 <- "C:/Temp/myOnCall5.csv"
   downloadDocument(doc, filepath1, fileformat="csv", sheetIndex=5)
   if (file.exists(filepath1)){
     target <- TRUE
+    cat("Wrote", filepath1, "\n\n")
   }
   print(checkEquals(TRUE, target))
 
-  
-  cat("download 'iris' to a spreadsheet format:\n")
-  filepath2 <- "C:/Temp/iris3.xls"
-  downloadDocument(doc, filepath2, fileformat="4")
+  cat("download 'testxls' to an 'xls' format (two shets):\n")
+  filepath2 <- "C:/Temp/testxls.xls"
+  doc <- allXls[[which(sapply(allXls, slot, "title")=="testxls")]]  
+  downloadDocument(doc, filepath2, fileformat="xls")
   if (file.exists(filepath2)){
     target <- TRUE
+    cat("Wrote", filepath2, "\n\n")
   }
   print(checkEquals(TRUE, target))
  
   cat("download 'iris' to a pdf format:\n")
-  filepath3 <- "C:/Temp/iris3.pdf"
-  downloadDocument(doc, filepath3, fileformat="12")
+  filepath3 <- "C:/Temp/iris.pdf"
+  downloadDocument(doc, filepath3, fileformat="pdf")
   if (file.exists(filepath3)){
     target <- TRUE
+    cat("Wrote", filepath3, "\n\n")
   }
   print(checkEquals(TRUE, target))
 
-
-  cat("download 'testXls' with multiple sheets to a spreadsheet format:\n")
-  doc <- allXls[[which(sapply(allXls, slot, "title")=="testxls")]]
-  filepath4 <- "C:/Temp/testxls3.xls"
-  downloadDocument(doc, filepath4, fileformat="4")
+  cat("download 'OnCall' with multiple sheets to a spreadsheet format:\n")
+  doc <- allXls[[which(sapply(allXls, slot, "title")=="OnCall")]]
+  filepath4 <- "C:/Temp/OnCall.xls"
+  downloadDocument(doc, filepath4, fileformat="xls")
   if (file.exists(filepath4)){
     target <- TRUE
+    cat("Wrote", filepath4, "\n\n")
+    cat("File should be corrupt.  Bad format?!")
   }
-  print(checkEquals(TRUE, target))
+  print(checkEquals(TRUE, target))  
 
-  
   if (deleteFiles){
     unlink(c(filepath1, filepath2, filepath3, filepath4))
   }

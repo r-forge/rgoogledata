@@ -1,5 +1,13 @@
 NEWS/Change log file
 
+Version 0.2.1 (2009-12-31)
+
+ o Minor release meant to fix some file versioning issues that slipped
+ into 0.2.0.  
+
+ o Improved documentation a bit
+
+
 Version 0.2.0 (2009-12-14)
  
  o  Upgraded to Google gdata version 1.40.  This had a
@@ -25,4 +33,5 @@ Version 0.2.0 (2009-12-14)
 Version 0.0.10 (2009-08-27)
 
  o First release on R-Forge
+
  o Importing files does not work. 

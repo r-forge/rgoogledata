@@ -4,7 +4,7 @@
 
 test.Spreadsheets <- function()
 {
-  require(RGoogleData)
+  require(RGoogleData); require(RUnit)
   username <- "rdocsdemo@gmail.com"
   password <- "RGooglePass12"
   con <- googleConnect(username, password)
@@ -15,12 +15,18 @@ test.Spreadsheets <- function()
   target <- (length(allXls)>0)
   print(checkEquals(TRUE, target))
 
+  cat("get worksheets from 'testxls':\n")
+  xls <- allXls[[which(sapply(allXls, slot, "title") == "testxls")]]
+  allShts <- getWorksheets(xls)
+  cat("Found", length(allShts), "sheets.\n")
+  
   cat("add worksheet 'toDelete' to 'testxls':\n")
   xls <- allXls[[which(sapply(allXls, slot, "title") == "testxls")]]
   target <- addWorksheet(xls, title="toDelete")
   print(checkEquals(TRUE, target))
 
   cat("delete worksheet I just created:\n")
+  xls <- allXls[[which(sapply(allXls, slot, "title") == "testxls")]]
   allWks <- getWorksheets(xls)
   wks <- allWks[[which(sapply(allWks, slot, "title") == "toDelete")]]
   target <- deleteWorksheet(wks)
@@ -38,8 +44,9 @@ test.Spreadsheets <- function()
   cat("get the ListEntries from first sheet of 'testxls':\n", sep="")
   xls <- allXls[[which(sapply(allXls, slot, "title") == "testxls")]]
   allWks <- getWorksheets(xls)
-  wks <- allWks[[which(sapply(xls, slot, "title") == "Sheet 1")]] 
+  wks <- allWks[[which(sapply(allWks, slot, "title") == "Sheet 1")]] 
   listEntries <- getListEntries(wks)
+  cat("Found", length(listEntries), "ListEntries (rows).\n")
   target <- (length(listEntries) > 0)
   print(checkEquals(TRUE, target))
 
@@ -55,7 +62,7 @@ test.Spreadsheets <- function()
 
   cat("modify the ListEntries I just added to the worksheet:\n")
   listEntries <- getListEntries(wks)
-  content <- getContent(listEntries)
+  content     <- getContent(listEntries)
   theseRowIds <- rownames(subset(content, year %in% 1601:1610))
   theseListEntries <- listEntries[which(sapply(listEntries, slot,
     "rowId") %in% theseRowIds)]

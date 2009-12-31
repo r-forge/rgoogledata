@@ -11,19 +11,20 @@ Upload documents to Google Docs.  Download Google Docs to local
 \usage{
 uploadDocument(con, filepath, title, folder)
 
-downloadDocument(doc, filepath, fileformat, sheetIndex)
+downloadDocument(doc, filepath, fileformat, sheetIndex=NULL)
 
 }
 \arguments{
-  \item{con}{ A 'GoogleConnection' object as returned by \code{googleConnect}.}
+  \item{con}{ A \code{GoogleConnection} object as returned by
+    \code{\link{googleConnect}}.}
   \item{filepath}{ A character string with the file path to upload/download.}
   \item{title}{ How do you want to name your document in Google Docs.}
-  \item{folder}{ A 'FolderEntry' object.  If empty, the document will be
+  \item{folder}{ A \code{FolderEntry} object.  If empty, the document will be
     uploaded in the home directory.}
   \item{fileformat}{ A character string representing a valid Google format.  See
     the Details section. }
-  \item{doc}{An object of class 'DocumentEntry', 'SpreadsheetEntry', or
-    'PresentationEntry'.}
+  \item{doc}{An object of class \code{DocumentEntry},
+    \code{SpreadsheetEntry}, or \code{PresentationEntry}.}
   \item{sheetIndex}{A numeric value indicating the sheet you want to
     download.  Works only for spreadsheets with fileformat "csv" and
     "tsv".  For all other file formats this argument is ignored.}
@@ -73,8 +74,8 @@ attachments at a time.
 
   # doc is a spreadsheet in your account with iris data.
   cat("download 'iris' to a spreadsheet format:\n")
-  filepath <- "C:/Temp/iris3.xls"
-  target <- downloadDocument(doc, filepath, fileformat="4")
+  filepath <- "C:/Temp/iris.xls"
+  target <- downloadDocument(doc, filepath, fileformat="xls")
 
 
 

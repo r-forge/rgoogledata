@@ -13,14 +13,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.gdata.client.spreadsheet.FeedURLFactory;
+import com.google.gdata.client.spreadsheet.SpreadsheetService;
+import com.google.gdata.data.BaseEntry;
+import com.google.gdata.data.PlainTextConstruct;
+import com.google.gdata.data.spreadsheet.SpreadsheetEntry;
+import com.google.gdata.data.spreadsheet.SpreadsheetFeed;
+import com.google.gdata.data.spreadsheet.WorksheetEntry;
+import com.google.gdata.data.spreadsheet.WorksheetFeed;
+import com.google.gdata.util.AuthenticationException;
+import com.google.gdata.util.ServiceException;
+
 import com.google.gdata.client.*;
 import com.google.gdata.client.GoogleAuthTokenFactory.UserToken;
 import com.google.gdata.client.docs.*;
-import com.google.gdata.client.spreadsheet.SpreadsheetService;
-import com.google.gdata.data.BaseEntry;
 import com.google.gdata.data.DateTime;
 import com.google.gdata.data.MediaContent;
-import com.google.gdata.data.PlainTextConstruct;
 import com.google.gdata.data.docs.*;
 import com.google.gdata.util.*;
 import com.google.gdata.data.extensions.*;
@@ -31,12 +39,8 @@ import com.google.gdata.data.spreadsheet.Data;
 import com.google.gdata.data.spreadsheet.Header;
 import com.google.gdata.data.spreadsheet.ListEntry;
 import com.google.gdata.data.spreadsheet.ListFeed;
-import com.google.gdata.data.spreadsheet.SpreadsheetEntry;
-import com.google.gdata.data.spreadsheet.SpreadsheetFeed;
 import com.google.gdata.data.spreadsheet.TableEntry;
 import com.google.gdata.data.spreadsheet.Worksheet;
-import com.google.gdata.data.spreadsheet.WorksheetEntry;
-import com.google.gdata.data.spreadsheet.WorksheetFeed;
 
 import com.google.gdata.data.Link;
 import com.google.gdata.data.acl.AclEntry;
@@ -48,7 +52,8 @@ public class RInterface {
 	
   public String Msg;   // keep some errors from GOOG
   public DocsService service; 
-  public GoogleService spreadsheetsService;
+  //public GoogleService spreadsheetsService;   //  v1.36
+  public SpreadsheetService spreadsheetsService;
   
   public static final String DEFAULT_AUTH_PROTOCOL = "https";
   public static final String DEFAULT_AUTH_HOST = "docs.google.com";
@@ -135,6 +140,8 @@ public class RInterface {
     DOWNLOAD_SPREADSHEET_FORMATS.put("html", "html");
   }
  
+  private FeedURLFactory factory;
+  
 	/********************************************************************
 	 * Login
 	 * @param userName
@@ -146,7 +153,7 @@ public class RInterface {
 	 try{
 	   service = new DocsService(applicationName);   
  	   //spreadsheetsService = new SpreadsheetService(applicationName);  
- 	   spreadsheetsService = new GoogleService(SPREADSHEETS_SERVICE_NAME, applicationName);
+ 	   spreadsheetsService = new SpreadsheetService(applicationName);
 	 } catch (Exception ex){
 	   Msg = "Exception: " + ex.getMessage() + "\n";  
 	 }	 
@@ -183,9 +190,6 @@ public class RInterface {
  	    Msg = "Exception: " + ex.getMessage() + "\n";    	
     }
   }
-  
-	  
-
   
 	 /********************************************************************
    * Get the details for a DocumentListEntry.  For each DocumentListEntry, a list of elements separated by tabs
@@ -227,31 +231,59 @@ public class RInterface {
 		return out.toString();
  }
 	
-	/**
-	 * Get details for one spreadsheet.  spreadsheetId is the short string. 
+	/*
+	 * Spreadsheet entries have different Id's than the ones returned by the 
+	 * DocumentList API.  This makes it impossible to use the same Id for file 
+	 * operations (e.g. delete, move, etc.) and spreadsheet operations (getContents, 
+	 * etc.)
+	 *   
 	 */
-	public String getWorksheetEntries(String spreadsheetId) 
+	public String getSpreadsheetListEntries() throws IOException, ServiceException{
+	  StringBuffer out = new StringBuffer();
+      out.append(BASE_ENTRY_DETAILS);
+      //out.append("\t"+ DOCUMENT_LIST_ENTRY_DETAILS);
+      out.append("\n");
+      
+      //http://spreadsheets.google.com/feeds/spreadsheets/private/full
+      String url = "http://spreadsheets.google.com" + URL_FEED + URL_GROUP_SPREADSHEETS + URL_DOCLIST_FEED;
+      URL spreadsheetsFeedUrl = new URL(url);      
+      SpreadsheetFeed feed = spreadsheetsService.getFeed(spreadsheetsFeedUrl,
+          SpreadsheetFeed.class);
+      
+      for (SpreadsheetEntry spreadsheet : feed.getEntries()){
+        out.append(getBaseEntryDetails(spreadsheet));
+        //out.append(getDocumentListEntryDetails(spreadsheet));
+        out.append("\n");    
+      }
+	  
+      return out.toString();
+	}
+	
+	/**
+	 * Get details for one spreadsheet.  Pass the full worksheetFeedUrl. 
+	 */
+	public String getWorksheetEntries(String worksheetFeedUrlString) 
 	  throws MalformedURLException, IOException, ServiceException{
 		
-		StringBuffer out = new StringBuffer();
-		//add the column names
-		out.append(BASE_ENTRY_DETAILS + "\tnrow\tncol\n");
-		URL url = new URL(spreadsheetId);
-	  SpreadsheetEntry spreadsheet = spreadsheetsService.getEntry(url, SpreadsheetEntry.class);
-		
-		URL worksheetFeedUrl = spreadsheet.getWorksheetFeedUrl();
-    WorksheetFeed worksheetFeed = spreadsheetsService.getFeed(worksheetFeedUrl,
+      StringBuffer out = new StringBuffer();
+      //add the column names
+      out.append(BASE_ENTRY_DETAILS + "\tnrow\tncol\n");
+      
+      URL worksheetFeedUrl = new URL(worksheetFeedUrlString);
+      //System.out.println(worksheetFeedUrl.toString());
+      
+      WorksheetFeed worksheetFeed = spreadsheetsService.getFeed(worksheetFeedUrl,
         WorksheetFeed.class);
-    for (WorksheetEntry worksheet : worksheetFeed.getEntries()) {
-      out.append(getBaseEntryDetails(worksheet));
-      out.append(worksheet.getRowCount() + "\t" + worksheet.getColCount() + "\n");
-    }
+      for (WorksheetEntry worksheet : worksheetFeed.getEntries()) {
+        out.append(getBaseEntryDetails(worksheet));
+        out.append(worksheet.getRowCount() + "\t" + worksheet.getColCount() + "\n");
+      }
 		
-		return out.toString();
+      return out.toString();
 	}	
 	
 	public String getTableEntries(String spreadsheetId) 
-    throws MalformedURLException, IOException, ServiceException{
+      throws MalformedURLException, IOException, ServiceException{
 	
   	StringBuffer out = new StringBuffer();
 	  //add the column names
@@ -457,31 +489,28 @@ public class RInterface {
 	  return; 	  
 	}
 	
-	public void addWorksheet(String sheetName, int rowCount, int colCount, String spreadsheetId){
+	public void addWorksheet(String sheetName, int rowCount, int colCount, String worksheetFeedUrlString){
 		
-		try{
-  		URL url = new URL(spreadsheetId);
-	    SpreadsheetEntry spreadsheet = spreadsheetsService.getEntry(url, SpreadsheetEntry.class);
-	  
-		  URL worksheetFeedUrl = spreadsheet.getWorksheetFeedUrl();
-		
+	  try{		 
+	    URL worksheetFeedUrl = new URL(worksheetFeedUrlString); 
+	      
   		WorksheetEntry worksheet = new WorksheetEntry();
-      worksheet.setTitle(new PlainTextConstruct(sheetName));
-      worksheet.setRowCount(rowCount);
-      worksheet.setColCount(colCount);
-      spreadsheetsService.insert(worksheetFeedUrl, worksheet);
-      Msg = "TRUE";
-		} catch (Exception ex){
-			Msg = "Exception: " + ex.getMessage();
-		}
+        worksheet.setTitle(new PlainTextConstruct(sheetName));
+        worksheet.setRowCount(rowCount);
+        worksheet.setColCount(colCount);
+        spreadsheetsService.insert(worksheetFeedUrl, worksheet);
+        Msg = "TRUE";
+	  } catch (Exception ex){
+		Msg = "Exception: " + ex.getMessage();
+	  }
     
 	}
 	
 	/**
 	 * Create a TableEntry on a NEW sheet of the spreadsheet.
 	 */
-  public void newTableEntry(String title, int headerRowIndex, int noRows, int startRowIndex, 
-  	String spreadsheetId, String worksheetName, String allColumnNames){
+    public void newTableEntry(String title, int headerRowIndex, int noRows, int startRowIndex, 
+  	  String spreadsheetId, String worksheetName, String allColumnNames){
 		
 		try{
 			TableEntry tableEntry = new TableEntry();
@@ -517,10 +546,10 @@ public class RInterface {
     
 	}
 	
-	public void deleteWorksheet(String worksheetId) {
+	public void deleteWorksheet(String worksheetEntryUrlString) {
 		
 		try{
-  		URL url = new URL(worksheetId);
+  		URL url = new URL(worksheetEntryUrlString);
 	    WorksheetEntry worksheet = spreadsheetsService.getEntry(url, WorksheetEntry.class);	  
       worksheet.delete();
       Msg = "TRUE";
