@@ -39,11 +39,14 @@ setMethod("show", "WorksheetEntry",
 
 getWorksheets <- function(xls, ...)
 {
-  id <- .getUniqueId(xls@id)[[1]]
-  worksheetId <- paste("http://spreadsheets.google.com/feeds/spreadsheets/",
-                       id, sep="")
-   
-  msg <- xls@con@ref$getWorksheetEntries(worksheetId)
+##  id <- .getUniqueId(xls@id)[[1]]
+##  spreadsheetId <- paste("http://spreadsheets.google.com/feeds/",
+##     "spreadsheets/", id, sep="")  # v1.36 gdata
+  worksheetFeedUrl <- paste("http://spreadsheets.google.com/feeds/",
+    "worksheets/", xls@spreadsheetKey, "/private/full", sep="")
+#http://spreadsheets.google.com/feeds/worksheets/ttXrIUcU402o2GV2jsGsF0g/private/full
+  
+  msg <- xls@con@ref$getWorksheetEntries(worksheetFeedUrl)
 
   msg <- strsplit(msg, "\n")[[1]]      # split by worksheets
   if (length(msg)==1){
@@ -251,10 +254,11 @@ deleteListEntry <- function(listEntries)
 # with other objects. 
 addWorksheet <- function(xls, title, nrow=100, ncol=20)
 {
-  key <- gsub("spreadsheet%3A(.*)", "\\1", xls@key)
-  id <- paste("http://spreadsheets.google.com/feeds/spreadsheets/", key,
-              sep="")
-  xls@con@ref$addWorksheet(title, as.integer(nrow), as.integer(ncol), id)
+  key <- xls@spreadsheetKey
+  worksheetFeedUrl <- paste("http://spreadsheets.google.com/feeds/worksheets/",
+    key, "/private/full", sep="")
+  xls@con@ref$addWorksheet(title, as.integer(nrow), as.integer(ncol),
+                           worksheetFeedUrl)
 
   invisible(as.logical(xls@con@ref$getMsg()))
 }

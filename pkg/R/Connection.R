@@ -85,7 +85,7 @@ setMethod("getFolders", "GoogleConnection",
     cat("No ", type, "s found.\n", sep="")
     return
   }
-
+  
   msg <- strsplit(msg, "\t")           # split by fields
   slotNames <- msg[[1]]
   msg <- msg[-1]
@@ -111,6 +111,16 @@ setMethod("getFolders", "GoogleConnection",
       x
     }, slotNames)
   
+  # from doc API 3.0, the spreadsheet key != document key 
+  if (type=="spreadsheet"){  
+    msgSS <- con@ref$getSpreadsheetListEntries()
+    msgSS <- strsplit(strsplit(msgSS, "\n")[[1]], "\t")
+    msgSS <- unlist(lapply(msgSS[-1], "[", 1))
+    spreadsheetKeys <- gsub(".*/(.*)", "\\1", msgSS)
+    for (i in seq_along(spreadsheetKeys))
+      msg[[i]]$spreadsheetKey <- spreadsheetKeys[i]   
+  }
+
   
   docs <- vector("list", length(msg))
   # create the doc descriptions

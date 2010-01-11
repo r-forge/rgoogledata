@@ -17,16 +17,22 @@ downloadDocument <- function(doc, filepath, fileformat, sheetIndex=NULL)
   if (docType == "spreadsheet"){
     if (!(fileformat %in% c("xls", "ods", "pdf", "csv", "tsv", "html")))
       warning("Unrecognized format for spreadsheet type.")
-    if (fileformat %in% c("csv", "tsv") & is.null(sheetIndex))
-      stop('Please provide a sheet index if you want "csv" or "tsv" output.')
+    if (fileformat %in% c("csv", "tsv")){
+        if (is.null(sheetIndex))
+          stop(paste('Please provide a sheet index if you want', 
+            '"csv" or "tsv" output.'), sep="")
+    } else {
+      sheetIndex <- 1  # ignored, but cannot be NULL
+    }
+    
   }
  
   if (docType == "presentation")
     if (!(fileformat %in% c("pdf", "ppt", "swf")))
       warning("Unrecognized format for presentation type.")    
 
-  doc@con@ref$downloadDocument(doc@key, filepath, as.character(fileformat),
-    as.character(sheetIndex-1))
+  doc@con@ref$downloadDocument(doc@key, as.character(filepath),
+    as.character(fileformat), as.character(sheetIndex-1))
 
   invisible()
 }

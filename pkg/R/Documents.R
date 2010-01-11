@@ -43,7 +43,8 @@ setClass("CellEntry",  contains = "BaseEntry")
 setClass("DocumentEntry",     contains = "DocumentListEntry")
 setClass("FolderEntry",       contains = "DocumentListEntry")
 setClass("PresentationEntry", contains = "DocumentListEntry")
-setClass("SpreadsheetEntry",  contains = "DocumentListEntry")
+setClass("SpreadsheetEntry",  contains = "DocumentListEntry",
+  representation(spreadsheetKey = "character"))  # Docs API changed!
 
 setGeneric("getContent", function(obj, ...){
   standardGeneric("getContent")})

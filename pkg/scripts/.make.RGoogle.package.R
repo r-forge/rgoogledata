@@ -8,7 +8,7 @@
 .setEnv <- function(computer=c("HOME", "LAPTOP", "WORK"))
 {
   if (computer=="WORK"){
-    pkgdir  <<- "H:/user/R/Adrian/findataweb/temp/RGoogleData/"
+    pkgdir  <<- "H:/user/R/Adrian/_RForge/RGoogleData/pkg"
     outdir  <<- "H:/"
     Rcmd    <<- "S:/All/Risk/Software/R/R-2.10.1/bin/Rcmd"
     javadir <<- "C:/Documents and Settings/e47187/workspace/test_gdata/"
@@ -77,7 +77,7 @@
 ##################################################################
 
 #version <- NULL      # keep increasing the minor
-version <- "0.2.0"  # if you want to set it by hand
+version <- "0.2.1"  # if you want to set it by hand
 
 .setEnv("WORK")
 
@@ -90,8 +90,8 @@ version <- "0.2.0"  # if you want to set it by hand
 setwd(outdir)
 cmd <- paste(Rcmd, "build --force --binary --no-vignette", pkgdir)
 print(cmd)
+system(cmd)
 
-system(cmd)  
 install.packages(paste("RGoogleData_",version,".zip", sep=""), repos=NULL)
 
 
